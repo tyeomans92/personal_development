@@ -65,17 +65,20 @@ other_send_gbp_dist = np.random.normal(500,1.0,size=n)
 
 other_mca_gbp_dist = np.random.normal(3000,1.0,size=n)
 
+else_dist = np.random.normal(100,1.0,size=n)
+
 
 ## apply transaction value dists to df
 df["transaction_amount_gbp"] = np.where(df["transacted"] == False,0,
-                                        np.where(df["partner_name"] == "Partner", np.apply_along_axis(np.random.choice, axis=0, arr=partner_send_gbp_dist),
-                                                np.where(((df["partner_name"]=="Others") & (df["product_name"]=="Send Money")),np.apply_along_axis(np.random.choice, axis=0, arr=other_send_gbp_dist),
-                                                         np.where(((df["partner_name"]=="Others")&(df["product_name"]=="MCA")),np.apply_along_axis(np.random.choice,axis=0,arr=other_mca_gbp_dist),np.random.normal(100,1.0,size=n))
+                                        np.where(df["partner_name"] == "Partner", np.apply_along_axis(np.random.choice, axis=0, arr=partner_send_gbp_dist, size=n),
+                                                np.where(((df["partner_name"]=="Others") & (df["product_name"]=="Send Money")),np.apply_along_axis(np.random.choice, axis=0, arr=other_send_gbp_dist, size=n),
+                                                         np.where(((df["partner_name"]=="Others")&(df["product_name"]=="MCA")),np.apply_along_axis(np.random.choice,axis=0,arr=other_mca_gbp_dist, size=n),np.apply_along_axis(np.random.normal,axis=0,arr=else_dist,size=n)
+                                                        )
                                                 )
                                         )
                                 )
 ## create existing user distribution of user_id
-df["user_id"] = np.where(df["new_user"]==False,np.apply_along_axis(np.random.choice, axis=0, arr=existing_users),np.random.uniform(103002,200001,size=n))
+df["user_id"] = np.where(df["new_user"]==False,np.apply_along_axis(np.random.choice, axis=0, arr=existing_users, size =n),np.random.uniform(103002,200001,size=n))
 
 ## combine to data frame and save
 df = pd.DataFrame(df)
