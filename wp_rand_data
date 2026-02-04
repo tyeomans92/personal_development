@@ -1,0 +1,83 @@
+## packages
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+import numpy as np
+import random
+from datetime import datetime as dt
+import csv
+
+## generate date list
+
+start_dt = dt.strptime("2025-01-01", "%Y-%m-%d")
+end_dt = dt.strptime("2026-03-31", "%Y-%m-%d")
+date_list = pd.date_range(start_dt, end_dt, freq="D")
+date_list = (np.datetime_as_string(date_list, unit="D"))
+
+print(date_list)
+
+## generate random data lists for dimensions
+
+np.random.seed(555)
+np.set_printoptions(precision=0)
+n = 100000
+
+date_utc = np.random.choice(date_list, n, replace=True)
+transacted = np.random.randint(0, 2, size=n, dtype=np.uint8).view(bool)
+new_user = np.random.randint(0, 2, size=n, dtype=np.uint8).view(bool)
+user_system = np.random.choice(['Partnership', 'Wise'], p=[0.8, 0.2], size=n)
+partner_name = np.random.choice(['Partner', 'Others'], p=[0.3, 0.7], size=n)
+target_currency = np.random.choice(['USD', 'EUR', 'CAD', 'AUD'], p=[0.4, 0.3, 0.2, 0.1], size=n)
+
+print(date_utc)
+
+## create df from list
+
+data = {
+    "date_utc": date_utc,
+    "new_user": new_user,
+    "user_system": user_system,
+    "partner_name": partner_name,
+    "transacted": transacted,
+    "target_currency": target_currency
+    # "transaction_amount_gbp": transaction_amount_gbp
+}
+df = pd.DataFrame(data)
+print(df)
+
+## generate existing user list
+
+existing_users = np.random.uniform(100001, 103001, size=3000)
+
+## create derived metrics and definitions
+## create random product allocations
+product_list = ['Send Money', 'MCA','Cards','Receive']
+def product_choice(arr):
+    return np.random.choice(product_list, p=[0.1, 0.3,0.1,0.5])
+
+df["product_name"] = np.where(((df["partner_name"] == "Partner") & (df["user_system"] == "Partnership")),"Send Money"
+                              , np.apply_along_axis(product_choice, axis=0, arr=product_list)
+                             )
+## create transaction value distributions
+partner_send_gbp_dist = np.random.normal(2000,1.0,size=n)
+
+other_send_gbp_dist = np.random.normal(500,1.0,size=n)
+
+other_mca_gbp_dist = np.random.normal(3000,1.0,size=n)
+
+
+## apply transaction value dists to df
+df["transaction_amount_gbp"] = np.where(df["transacted"] == False,0,
+                                        np.where(df["partner_name"] == "Partner", np.apply_along_axis(np.random.choice, axis=0, arr=partner_send_gbp_dist),
+                                                np.where(((df["partner_name"]=="Others") & (df["product_name"]=="Send Money")),np.apply_along_axis(np.random.choice, axis=0, arr=other_send_gbp_dist),
+                                                         np.where(((df["partner_name"]=="Others")&(df["product_name"]=="MCA")),np.apply_along_axis(np.random.choice,axis=0,arr=other_mca_gbp_dist),np.random.normal(100,1.0,size=n))
+                                                )
+                                        )
+                                )
+## create existing user distribution of user_id
+df["user_id"] = np.where(df["new_user"]==False,np.apply_along_axis(np.random.choice, axis=0, arr=existing_users),np.random.uniform(103002,200001,size=n))
+
+## combine to data frame and save
+df = pd.DataFrame(df)
+print(df)
+df.to_csv("C:/Users/sc_ty/Documents/Tom Work Docs/wise_platform_task_data.csv", index=False)
