@@ -59,13 +59,13 @@ df["product_name"] = np.where(((df["partner_name"] == "Partner") & (df["user_sys
                               , np.apply_along_axis(product_choice, axis=0, arr=product_list)
                              )
 ## create transaction value distributions
-partner_send_gbp_dist = np.random.normal(2000,1.0,size=n)
+partner_send_gbp_dist = np.random.normal(2000,5.0,size=n)
 
-other_send_gbp_dist = np.random.normal(500,1.0,size=n)
+other_send_gbp_dist = np.random.normal(500,5.0,size=n)
 
-other_mca_gbp_dist = np.random.normal(3000,1.0,size=n)
+other_mca_gbp_dist = np.random.normal(3000,5.0,size=n)
 
-else_dist = np.random.normal(100,1.0,size=n)
+else_dist = np.random.normal(100,5.0,size=n)
 
 
 ## apply transaction value dists to df
