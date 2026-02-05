@@ -53,7 +53,7 @@ existing_users = np.random.uniform(100001, 103001, size=3000)
 ## create random product allocations
 product_list = ['Send Money', 'MCA','Cards','Receive']
 def product_choice(arr):
-    return np.random.choice(product_list, p=[0.1, 0.3,0.1,0.5])
+    return np.random.choice(product_list, p=[0.1, 0.3,0.1,0.5], size=n)
 
 df["product_name"] = np.where(((df["partner_name"] == "Partner") & (df["user_system"] == "Partnership")),"Send Money"
                               , np.apply_along_axis(product_choice, axis=0, arr=product_list)
